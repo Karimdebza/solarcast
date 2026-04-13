@@ -27,48 +27,37 @@ def train_model(df:pd.DataFrame, config):
     x = df[features].values
     y = df["production"].values
 
-    model = XGBRegressor(n_estimators=200, max_depth=4, learning_rate=0.05, random_state=42)
+    model = XGBRegressor(n_estimators=300, max_depth=5, learning_rate=0.05,subsample=0.8, random_state=42)
     model.fit(x, y)
     return model 
 
-def predict_next_7_days(model,df:pd.DataFrame,config) -> list:
-   """Prédit les 7 prochains jours en se basant sur les données historiques similaires"""   
+def predict_from_forecast(model: XGBRegressor, forecast_df: pd.DataFrame, config) -> list:
+   """
+   Prédit la production à partir des VRAIES prévisions Open-Meteo.
+   XGBoost apprend les patterns NASA → prédit sur météo réelle future.
+   """
    predictions = []
    today = datetime.now()
 
-   for i in range(1,8):
-        target_date = today + timedelta(days=i)
-        day_of_year = target_date.timetuple().tm_yday
-        month = target_date.month
+   for _, row in forecast_df.iterrows():
+        features = np.array([[
+            row["irradiance"],
+            row["temperature"],
+            row["cloud_cover"],
+            row["wind_speed"],
+            row["day_of_year"],
+            row["month"]
+        ]])
+        production = float(model.predict(features)[0])
+        production = max(0, production)
 
-        # Prendre la moyenne des mêmes jours les années précédentes
 
-        similar = df[(df["day_of_year"].between(day_of_year -7, day_of_year +7)) & (df["month"] == month)]
-        if similar.empty:
-             similar = df[df["month"] == month]
-        
-        irradiance = float(similar["irradiance"].mean())
-        temperature = float(similar["temperature"].mean())
-        cloud_cover = float(similar["cloud_cover"].mean())
-        wind_speed = float(similar["wind_speed"].mean())
-
-        # Formule physique = base
-        base_production = compute_production(irradiance, temperature, cloud_cover, config)
-
-        # XGBoost ajuste selon patterns historiques
-        features = np.array([[irradiance, temperature, cloud_cover, wind_speed, day_of_year, month]])
-        xgb_output = float(model.predict(features)[0])
-
-        correction_factor = xgb_output / (base_production + 0.001)
-        correction_factor = max(0.85, min(1.15, correction_factor))
-
-        production = base_production * correction_factor
         predictions.append({
-            "date": target_date.strftime("%Y-%m-%d"),
+            "date": row["date"].strftime("%Y-%m-%d"),
             "production_kwh": round(production, 2),
-            "irradiance": round(irradiance, 2),
-            "temperature": round(temperature, 1),
-            "cloud_cover": round(cloud_cover, 1),
+            "irradiance": round(row["irradiance"], 2),
+            "temperature": round(row["temperature"], 1),
+            "cloud_cover": round(row["cloud_cover"], 1),
             "economies_eur": round(production * PRIX_KWH, 2),
             "co2_evite_kg": round(production * CO2_KWH, 2),
         })

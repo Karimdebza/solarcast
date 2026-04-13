@@ -7,3 +7,6 @@ xgboost
 scikit-learn
 pydantic
 python-dotenv
+openmeteo-requests
+requests-cache
+retry-requests
