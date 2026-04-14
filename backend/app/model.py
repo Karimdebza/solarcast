@@ -11,10 +11,12 @@ PERFORMANCE_RATIO = 0.80
 def compute_production(irradiance: float, temp: float, cloud_cover: float, config) -> float:
        """Formule physique : P = irradiance × surface × rendement × correction_temp"""
        coeff_temp = -0.004 # -0.4% par °C au dessus de 25°C
-       correction_temp = 1 + coeff_temp * (temp - 25)
-       correction_temp =  max(0.7, min(1.1, correction_temp))
-       correction_nuages = 1 - (cloud_cover / 100) * 0.60
-       correction_nuages = max(0.2, correction_nuages)
+       temp_cellule = temp + (irradiance * 20 / 0.8)
+       correction_temp = 1 + coeff_temp * (temp_cellule - 25)
+       
+       correction_temp =  max(0.6, min(1.0, correction_temp))
+       correction_nuages = 1 - (cloud_cover / 100) * 0.25
+    #    correction_nuages = max(0.2, correction_nuages)
        # Formule : Pkwc × (irradiance/peak_irradiance) × PR × correction_temp
        production = config.power_kwc * irradiance * PERFORMANCE_RATIO * correction_temp * correction_nuages
        return round(max(0, production), 3)

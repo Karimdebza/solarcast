@@ -1,1 +1,73 @@
-<p>dashboard works!</p>
+<div class="dashboard">
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi">
+      <div class="icon">⚡</div>
+      <div class="value">{{ data.total_production_kwh }} <span>kWh</span></div>
+      <div class="label">Production 7 jours</div>
+    </div>
+    <div class="kpi green">
+      <div class="icon">💶</div>
+      <div class="value">{{ data.total_economies_eur }} <span>€</span></div>
+      <div class="label">Économies estimées</div>
+    </div>
+    <div class="kpi blue">
+      <div class="icon">🌱</div>
+      <div class="value">{{ data.total_co2_evite_kg }} <span>kg</span></div>
+      <div class="label">CO₂ évité</div>
+    </div>
+    <div class="kpi purple">
+      <div class="icon">📍</div>
+      <div class="value" style="font-size: 1rem">{{ data.location }}</div>
+      <div class="label">Localisation</div>
+    </div>
+  </div>
+
+  <!-- Graphe -->
+  <div class="chart-card">
+    <h3>Production & Météo — 7 prochains jours</h3>
+    <div class="chart-wrapper">
+      <canvas #productionChart></canvas>
+    </div>
+  </div>
+
+  <!-- Tableau détaillé -->
+  <div class="table-card">
+    <h3>Prévisions détaillées</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Météo</th>
+            <th>Irradiance</th>
+            <th>Température</th>
+            <th>Nuages</th>
+            <th>Production</th>
+            <th>Économies</th>
+            <th>CO₂ évité</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let day of data.predictions">
+            <td class="date">{{ day.date }}</td>
+            <td class="icon">{{ getCloudIcon(day.cloud_cover) }}</td>
+            <td>{{ day.irradiance }} kWh/m²</td>
+            <td>{{ day.temperature }}°C</td>
+            <td>
+              <div class="cloud-bar">
+                <div class="fill" [style.width.%]="day.cloud_cover"></div>
+                <span>{{ day.cloud_cover }}%</span>
+              </div>
+            </td>
+            <td class="accent">{{ day.production_kwh }} kWh</td>
+            <td class="green">{{ day.economies_eur }} €</td>
+            <td class="blue">{{ day.co2_evite_kg }} kg</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
