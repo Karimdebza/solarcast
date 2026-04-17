@@ -21,7 +21,7 @@ except Exception as e:
     print("❌ Redis non disponible :", e)
 def get_cache(key:str):
     try:
-        data = r.get(key)
+        data = r.get(f"v2:{key}")
         if data : 
             print(f"⚡ Cache HIT pour : {key}")
             return json.loads(data) if data else None
@@ -33,7 +33,7 @@ def get_cache(key:str):
 def set_cache(key:str, value:dict, ttl: int =3600):
     try:
         print(f"DEBUG: Tentative d'écriture dans Redis - Clé: {key}")
-        r.setex(key, ttl, json.dumps(value))
+        r.setex(f"v2:{key}", ttl, json.dumps(value))
     except Exception as e:
         print(f"❌ Erreur CRITIQUE set_cache : {e}")
 
@@ -41,7 +41,7 @@ RATE_LIMIT = 60
 WINDOW = 60  # 60 req / minute
 
 def is_rate_limited(ip: str):
-    key = f"rate:{ip}"
+    key = f"v2:rate:{ip}"
 
     try:
         current = r.incr(key)
