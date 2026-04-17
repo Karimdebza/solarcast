@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+import fastapi.encoders
 from app.shemas import PanelConfig, PredictionResponse
 from app.nasa import fetch_nasa_data
 from app.openmeteo import fetch_forcast
 from app.model import train_model, predict_from_forecast
-
+from app.cache import get_cache, set_cache, is_rate_limited
 app = FastAPI(title="SolarCast API", version="1.0.0")
 
 app.add_middleware(
@@ -21,7 +22,16 @@ def root():
 
 
 @app.post("/predict", response_model=PredictionResponse)
-async def predict(config: PanelConfig):
+async def predict(config: PanelConfig, req:Request):
+    client_ip =  req.client.host
+    if is_rate_limited(client_ip):
+        raise HTTPException( status_code=429, detail='Trop de requêtes ! Calme-toi un peu sur le soleil. 🌞')
+
+    cache_key = f"predict:{config.latitude}:{config.longitude}:{config.power_kwc}:{config.tilt}"
+    cached_res = get_cache(cache_key)
+    if cached_res:
+        print(f"⚡ Cache Hit pour {cache_key}")
+        return cached_res
     try:
         # 1. NASA — 40 ans d'historique pour entraîner XGBoost
         nasa_df = await fetch_nasa_data(config.latitude, config.longitude)
@@ -39,13 +49,17 @@ async def predict(config: PanelConfig):
         total_economies = sum(p["economies_eur"] for p in predictions)
         total_co2 = sum(p["co2_evite_kg"] for p in predictions)
 
-        return PredictionResponse(
+        response =  PredictionResponse(
             location=f"{config.latitude}, {config.longitude}",
             total_production_kwh=round(total_production, 2),
             total_economies_eur=round(total_economies, 2),
             total_co2_evite_kg=round(total_co2, 2),
             predictions=predictions
         )
+        json_compatible_data = fastapi.encoders.jsonable_encoder(response)
+        set_cache(cache_key, json_compatible_data, ttl=43200)
+
+        return response
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
