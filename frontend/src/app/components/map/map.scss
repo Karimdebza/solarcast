@@ -1,0 +1,13 @@
+#map {
+  height: 300px; /* Obligatoire */
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+  z-index: 1; /* Pour éviter que la carte passe au-dessus des menus */
+}
+
+/* Optionnel : curseur en forme de cible quand on survole la carte */
+.leaflet-container {
+  cursor: crosshair;
+}

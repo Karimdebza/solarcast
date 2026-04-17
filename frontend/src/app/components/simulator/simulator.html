@@ -5,9 +5,9 @@
   </div>
 
   <div class="form">
-    <!-- Sélection ville -->
     <div class="field full">
       <label>📍 Localisation</label>
+      
       <div class="cities">
         <button
           *ngFor="let city of cities"
@@ -17,54 +17,56 @@
           {{ city.name }}
         </button>
       </div>
+
+      <div class="map-container">
+        <app-map (locationChanged)="onMapLocationChange($event)"></app-map>
+      </div>
+
       <div class="coords">
-        <span>Lat: {{ config.latitude }}</span>
-        <span>Lon: {{ config.longitude }}</span>
+        <span><strong>Lat:</strong> {{ config.latitude }}</span>
+        <span><strong>Lon:</strong> {{ config.longitude }}</span>
       </div>
     </div>
 
-    <!-- Puissance -->
-    <div class="field">
-      <label>⚡ Puissance crête</label>
-      <div class="input-group">
-        <input type="number" [(ngModel)]="config.power_kwc" min="0.5" max="100" step="0.5" />
-        <span class="unit">kWc</span>
+    <div class="grid-inputs">
+      <div class="field">
+        <label>⚡ Puissance crête</label>
+        <div class="input-group">
+          <input type="number" [(ngModel)]="config.power_kwc" step="0.5" />
+          <span class="unit">kWc</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Surface -->
-    <div class="field">
-      <label>📐 Surface panneaux</label>
-      <div class="input-group">
-        <input type="number" [(ngModel)]="config.surface_m2" min="1" max="500" step="1" />
-        <span class="unit">m²</span>
+      <div class="field">
+        <label>📐 Surface panneaux</label>
+        <div class="input-group">
+          <input type="number" [(ngModel)]="config.surface_m2" />
+          <span class="unit">m²</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Orientation -->
-    <div class="field">
-      <label>🧭 Orientation</label>
-      <div class="input-group">
-        <input type="number" [(ngModel)]="config.orientation" min="0" max="360" step="10" />
-        <span class="unit">° (180=Sud)</span>
+      <div class="field">
+        <label>🧭 Orientation</label>
+        <div class="input-group">
+          <input type="number" [(ngModel)]="config.orientation" />
+          <span class="unit">° (180=Sud)</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Inclinaison -->
-    <div class="field">
-      <label>📏 Inclinaison</label>
-      <div class="input-group">
-        <input type="number" [(ngModel)]="config.tilt" min="0" max="90" step="5" />
-        <span class="unit">°</span>
+      <div class="field">
+        <label>📏 Inclinaison</label>
+        <div class="input-group">
+          <input type="number" [(ngModel)]="config.tilt" />
+          <span class="unit">°</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Rendement -->
-    <div class="field">
-      <label>🔋 Rendement</label>
-      <div class="input-group">
-        <input type="number" [(ngModel)]="config.efficiency" min="0.10" max="0.25" step="0.01" />
-        <span class="unit">( ex: 0.20 = 20%)</span>
+      <div class="field full">
+        <label>🔋 Rendement</label>
+        <div class="input-group">
+          <input type="number" [(ngModel)]="config.efficiency" step="0.01" />
+          <span class="unit">(ex: 0.20 = 20%)</span>
+        </div>
       </div>
     </div>
 

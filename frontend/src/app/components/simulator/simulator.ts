@@ -2,9 +2,10 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PanelConfig } from '../../services/solar';
+import { Map } from '../map/map';
 @Component({
   selector: 'app-simulator',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,Map],
   templateUrl: './simulator.html',
   styleUrl: './simulator.scss',
 })
@@ -39,4 +40,8 @@ export class Simulator {
   onSubmit() {
     this.predict.emit(this.config);
   }
+  onMapLocationChange(coords: {lat: number, lng: number}) {
+  this.config.latitude = parseFloat(coords.lat.toFixed(4));
+  this.config.longitude = parseFloat(coords.lng.toFixed(4));
+}
 }
