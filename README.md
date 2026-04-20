@@ -42,10 +42,10 @@ Empreinte Carbone : Calcul du CO2 évité grâce à l'énergie propre produite.
 🛠️ Stack Technique Récapitulative
 Frontend : Angular (TypeScript)
 
-Backend : Python (FastAPI)
+Backend : Python (FastAPI), Redis
 
 IA : XGBoost, Scikit-learn, Pandas
 
 Data : NASA Power API, Visual Crossing
 
-DevOps : Docker, Redis, Render
+DevOps : Docker,  Render
